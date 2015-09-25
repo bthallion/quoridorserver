@@ -34,31 +34,24 @@ var astar = {
     * @param {Graph} graph
     * @param {GridNode} start
     * @param {Array} end
-    * @param {Object} [options]
-    * @param {bool} [options.closest] Specifies whether to return the
-               path to the closest node if the target is unreachable.
-    * @param {Function} [options.heuristic] Heuristic function (see
-    *          astar.heuristics).
     */
-    search: function(graph, start, end, options) {
+    search: function search(graph, start, end) {
         graph.cleanDirty();
-        options = options || {};
-        var heuristic = options.heuristic || astar.heuristics.manhattan,
-            closest = options.closest || false;
+        var options = {};
+        var heuristic = astar.heuristics.manhattan,
+            closest = false;
 
         var openHeap = getHeap(),
             closestNode = start; // set the start node to be the closest if required
-
         start.h = heuristic(start, end);
-
         openHeap.push(start);
-
-        while(openHeap.size() > 0) {
+        while (openHeap.size() > 0) {
 
             // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
             var currentNode = openHeap.pop();
+          //  console.log('current node '+currentNode+" value: "+currentNode.f);
             // End case -- result has been found, return the traced path.
-            if(end.indexOf(currentNode) > -1) {
+            if (end === currentNode) {
                 return pathTo(currentNode);
             }
 
@@ -68,9 +61,9 @@ var astar = {
 
             // Find all neighbors for the current node.
             var neighbors = graph.neighbors(currentNode);
-            console.log('neighbors '+neighbors);
-            for (var i = 0, il = neighbors.length; i < il; ++i) {
-                var neighbor = neighbors[i];
+            //console.log('neighbors: '+neighbors);
+            for (var j = 0, il = neighbors.length; j < il; ++j) {
+                var neighbor = neighbors[j];
 
                 if (neighbor.closed || neighbor.isWall()) {
                     // Not a valid node to process, skip to next neighbor.
@@ -88,7 +81,6 @@ var astar = {
                     neighbor.visited = true;
                     neighbor.parent = currentNode;
                     neighbor.h = neighbor.h || heuristic(neighbor, end);
-                    console.log('neighbor '+neighbor+' distance '+neighbor.h);
                     neighbor.g = gScore;
                     neighbor.f = neighbor.g + neighbor.h;
                     graph.markDirty(neighbor);
@@ -115,7 +107,6 @@ var astar = {
         if (closest) {
             return pathTo(closestNode);
         }
-
         // No result was found - empty array signifies failure to find path.
         return [];
     },
@@ -123,22 +114,7 @@ var astar = {
     heuristics: {
         //check distance to each goal node, return closest distance
         manhattan: function(posStart, posEnd) {
-            var i,
-                d1 = Infinity,
-                d2 = Infinity;
-            //console.log(posEnd.length);
-            if (posEnd.constructor === Array) {
-                for (i = 0; i < posEnd.length; i++) {
-                    d1 = Math.abs(posEnd[i].x - posStart.x) + Math.abs(posEnd[i].y - posStart.y);
-                    if (d1 < d2) {
-                        d2 = d1;
-                    }
-                }
-            }
-            else {
-                d2 = Math.abs(posEnd.x - posStart.x) + Math.abs(posEnd.y - posStart.y);
-            }
-            return d2;
+            return Math.abs(posEnd.x - posStart.x) + Math.abs(posEnd.y - posStart.y);
         },
         diagonal: function(pos0, pos1) {
             var D = 1;
@@ -199,7 +175,7 @@ Graph.prototype.markDirty = function(node) {
     this.dirtyNodes.push(node);
 };
 
-    //COORDINATE SYSTEMS ARE GETTING SWITCHED x,y and y,x
+
 Graph.prototype.neighbors = function(node) {
     var i, k,
         ret = [],
@@ -207,57 +183,32 @@ Graph.prototype.neighbors = function(node) {
         y = node.y,
         grid = this.grid;
 
-    // West
+    // North
     if(grid[x-2] && grid[x-2][y]) {
         if (!(grid[x-1][y].isWall())) {
             ret.push(grid[x-2][y]);
         }
     }
 
-    // East
-    if(grid[x+2] && grid[x+2][y]) {
-        if (!(grid[x+1][y].isWall())) {
-            ret.push(grid[x+2][y]);
-        }
-    }
-
-    // North
-    if(grid[x] && grid[x][y-2]) {
-        if (!(grid[x][y-1].isWall())) {
-            console.log('north '+grid[x][y-2]);
-            ret.push(grid[x][y-2]);
-        }
-        else {
-            console.log(this.toString());
-            console.log('failed wall test y value '+y+' node at y-1 '+grid[x][y-1]);
-            for (k = x - 2; k < x + 2; k++) {
-                for (i = 0; i < grid[k].length; i++) {
-                    console.log('node '+grid[k][i]+' weight '+grid[k][i].weight);
-                }
-            }
-        }
-    }
-
     // South
-    if(grid[x] && grid[x][y+2]) {
-        if (!(grid[x][y+1].isWall())) {
-            console.log('south '+grid[x][y+2]);
-            ret.push(grid[x][y+2]);
-        }
-        else {
-            console.log(this.toString());
-            console.log('failed wall test y value '+y+' node at y+1 '+grid[x][y+1]);
-            for (k = x - 2; k < x + 2; k++) {
-                for (i = 0; i < grid[k].length; i++) {
-                    console.log('node '+grid[k][i]+' weight '+grid[k][i].weight);
-                }
-            }
+    if(grid[x+2] && grid[x+2][y]) {
+        if (!(grid[x + 1][y].isWall())) {
+            ret.push(grid[x + 2][y]);
         }
     }
-    else {
-       // console.log(this.toString());
-       // console.log('south doesn\'t exist because gridx '+grid[x]+' or gridxy '+grid[x][y+2]);
-       // console.log('y value: '+y+' node '+grid[x][y]);
+
+    // West
+    if(grid[x] && grid[x][y-2]) {
+        if (!(grid[x][y - 1].isWall())) {
+            ret.push(grid[x][y - 2]);
+        }
+    }
+
+    //East
+    if(grid[x] && grid[x][y+2]) {
+        if (!(grid[x][y + 1].isWall())) {
+            ret.push(grid[x][y + 2]);
+        }
     }
  /*
     if (this.diagonal) {
@@ -285,15 +236,33 @@ Graph.prototype.neighbors = function(node) {
     return ret;
 };
 
-Graph.prototype.toString = function() {
+Graph.prototype.toString = function(pos1, pos2) {
     var graphString = [],
         nodes = this.grid, // when using grid
-        rowDebug, row, y, l;
+        rowDebug, row, y, l,
+        p1x, p1y, p2x, p2y;
+
+    p1x = 2 * (pos1 % 9);
+    p1y = (2 * (9 - 1)) - 2 * Math.floor(pos1 / 9);
+
+    p2x = 2 * (pos2 % 9);
+    p2y = (2 * (9 - 1)) - 2 * Math.floor(pos2 / 9);
+
+
+
     for (var x = 0, len = nodes.length; x < len; x++) {
         rowDebug = [];
         row = nodes[x];
         for (y = 0, l = row.length; y < l; y++) {
-            rowDebug.push(row[y].weight);
+            if (x === p1x && y === p1y) {
+                rowDebug.push(3);
+            }
+            else if (x === p2x && y === p2y) {
+                rowDebug.push(4);
+            }
+            else {
+                rowDebug.push(row[y].weight);
+            }
         }
         graphString.push(rowDebug.join(" "));
     }
