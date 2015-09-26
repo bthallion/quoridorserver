@@ -1,0 +1,34 @@
+{
+  "name": "quoridorserver",
+  "version": "1.0.0",
+  "description": "The server builds a game tree with the Monte Carlo Tree search algorithm, using an upper confidence bound (UCT) for node selection to balance exploration of unknown nodes and exploitation of valuable nodes. The UCT is modified with a heuristic approximation of the node's value, either a simple difference in path lengths or the difference between this node's board heuristic and the best consequent play of the opponent - respectively light and heavy node evaluation. ",
+  "main": "dist/qserver.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "redis": "^1.0.0",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt": "^0.4.5",
+    "socket.io": "^1.3.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sutkh/quoridorserver.git"
+  },
+  "keywords": [
+    "quoridor",
+    "ai",
+    "astar",
+    "mcts"
+  ],
+  "author": "Ben Hallion",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sutkh/quoridorserver/issues"
+  },
+  "homepage": "https://github.com/sutkh/quoridorserver#readme"
+}
