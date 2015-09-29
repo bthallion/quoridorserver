@@ -840,7 +840,7 @@
             y = (2 * (my.dimension - 1)) - 2 * Math.floor(pos / my.dimension);
             return [x, y];
         };
-
+        /*
         this.getHeuristicValue = function getHeuristicValue() {
             var i, path1, path2, start, coors, winRange,
                 opponent = this.getOpponent(),
@@ -873,6 +873,10 @@
                 }
                 return length;
             }
+
+        }; */
+
+        this.getHeuristicValue = function getHeuristicValue() {
 
         };
 
